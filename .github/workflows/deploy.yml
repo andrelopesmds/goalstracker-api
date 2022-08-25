@@ -1,0 +1,17 @@
+name: Deploy CDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: Environment
+        required: true
+        default: dev
+
+jobs:
+  deploy:
+    uses: andrelopesmds/reusable-workflows/.github/workflows/aws-cdk-deploy.yml@main
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
