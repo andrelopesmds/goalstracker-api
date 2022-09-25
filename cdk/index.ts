@@ -10,5 +10,5 @@ const app = new App();
 new GoalstrackerApiStack(app, stackName, {
   stackName,
   environment,
-  description: `Goals tracker stack api for ${environment} environment`
+  description: `Goals tracker api stack for ${environment} environment`
 });
