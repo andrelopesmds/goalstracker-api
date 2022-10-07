@@ -1,7 +1,7 @@
-import { callPushHandler } from '../helper';
 import { PushNotification } from '../interfaces/push-notification.interface';
 import { DynamoDBRecordEventName } from '../enums/dynamoDBRecordEventName';
 import { DynamoDBStreamEvent } from 'aws-lambda';
+import { NotificationsRepository } from '../repository/notifications';
 
 export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
   if (event.Records[0].eventName !== DynamoDBRecordEventName.INSERT) {
@@ -13,7 +13,8 @@ export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {
 
   const welcomePushNotification = createWelcomePushNotification();
 
-  await callPushHandler(welcomePushNotification, subscription);
+  const notificationsRepository = new NotificationsRepository()
+  await notificationsRepository.publishMessage(welcomePushNotification, subscription);
 };
 
 const createSubscriptionsObject = (event: any): { endpoint: string, keys: { auth: string, p256dh: string }} => {

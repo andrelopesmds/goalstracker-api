@@ -1,12 +1,12 @@
 import { mocked } from 'jest-mock';
 
 import { handler } from '../../src/lambdas/welcome-event';
-import * as callPushHandler from '../../src/helper';
+import { NotificationsRepository } from '../../src/repository/notifications'
 import { DynamoDBRecordEventName } from '../../src/enums/dynamoDBRecordEventName';
 import { DynamoDBStreamEvent } from 'aws-lambda';
 
-jest.mock('../../src/helper');
-const helperMocked = mocked(callPushHandler, true);
+jest.mock('../../src/repository/notifications');
+const publishMessageMock = mocked(NotificationsRepository.prototype.publishMessage);
 
 const getMockedNewSubscriptionEvent = (eventName: DynamoDBRecordEventName | undefined): DynamoDBStreamEvent => {
   return {
@@ -56,7 +56,7 @@ describe('Welcome event', () => {
 
     await handler(event);
 
-    expect(helperMocked.callPushHandler).toHaveBeenCalledWith(
+    expect(publishMessageMock).toHaveBeenCalledWith(
       expectedPushNotification,
       expectedSubscription
     );
@@ -66,11 +66,11 @@ describe('Welcome event', () => {
     DynamoDBRecordEventName.MODIFY,
     DynamoDBRecordEventName.REMOVE,
     undefined
-  ])('Should not publish to sns topic in case it is a %p event', async (eventName) => {
+  ])('Should not publish to sns topic in case it is a %p event', async (eventName: DynamoDBRecordEventName | undefined) => {
     const event = getMockedNewSubscriptionEvent(eventName);
 
     await handler(event);
 
-    expect(helperMocked.callPushHandler).not.toHaveBeenCalled();
+    expect(publishMessageMock).not.toHaveBeenCalled();
   });
 });

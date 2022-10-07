@@ -5,7 +5,7 @@ import * as webpush from 'web-push';
 import { PushNotification } from '../../src/interfaces/push-notification.interface';
 
 jest.mock('web-push')
-const webPushMock = mocked(webpush, true)
+const webPushMock = mocked(webpush)
 
 const activeSubscriptionsMock = {
   endpoint: 'endpoint mock',
@@ -27,7 +27,7 @@ const pushNotificationMock: PushNotification = {
 
 describe('Push notification lambda', () => {
   it('Should send a push notification', async () => {
-    webPushMock.setVapidDetails.mockImplementationOnce(() => Promise.resolve())
+    webPushMock.setVapidDetails.mockReturnThis()
 
     await handler({
       Records: [

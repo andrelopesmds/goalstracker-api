@@ -1,14 +1,14 @@
 import { mocked } from 'jest-mock';
 
 import { handler } from '../../src/lambdas/create-subscription';
-import { createSubscription } from '../../src/repository/subscriptions';
+import { SubscriptionsRepository } from '../../src/repository/subscriptions';
 
 jest.mock('../../src/repository/subscriptions');
-const createSubscriptionMock = mocked(createSubscription, true);
+const createSubscriptionMock = mocked(SubscriptionsRepository.prototype.createSubscription);
 
 describe('Create subscriptions lambda', () => {
   it('Should create a subscription successfully', async () => {
-    createSubscriptionMock.mockImplementationOnce(() => Promise.resolve())
+    createSubscriptionMock.mockResolvedValue()
 
     const event = {
       body: JSON.stringify({
@@ -68,5 +68,4 @@ describe('Create subscriptions lambda', () => {
 
     await expect(handler(event)).rejects.toThrow(expectedErrorMessage)
   });
-
 });
