@@ -1,18 +1,18 @@
 import { mocked } from 'jest-mock';
 
 import { handler } from '../../src/lambdas/dispatch-events';
-import { getActiveSubscriptions } from '../../src/repository/subscriptions';
+import { SubscriptionsRepository } from '../../src/repository/subscriptions';
 import { Subscription } from '../../src/interfaces/subscription.interface';
 import { DynamoDBRecordEventName } from '../../src/enums/dynamoDBRecordEventName';
 import { DynamoDBStreamEvent } from 'aws-lambda';
-import * as callPushHandler from '../../src/helper'
 import { PublishCommandOutput } from '@aws-sdk/client-sns';
+import { NotificationsRepository } from '../../src/repository/notifications';
 
-jest.mock('../../src/helper');
-const helperMocked = mocked(callPushHandler, true);
+jest.mock('../../src/repository/notifications');
+const publishMessageMock = mocked(NotificationsRepository.prototype.publishMessage);
 
 jest.mock('../../src/repository/subscriptions');
-const getActiveSubscriptionsMock = mocked(getActiveSubscriptions, true);
+const getActiveSubscriptionsMock = mocked(SubscriptionsRepository.prototype.getActiveSubscriptions);
 
 const getMockedNewEvent = (eventName: DynamoDBRecordEventName | undefined): DynamoDBStreamEvent => {
   return {
@@ -61,23 +61,23 @@ describe('Dispatch events lambda', () => {
     DynamoDBRecordEventName.MODIFY,
     DynamoDBRecordEventName.REMOVE,
     undefined
-  ])('Should not publish to sns topic in case it is a %p event', async (eventName) => {
+  ])('Should not publish to sns topic in case it is a %p event', async (eventName: DynamoDBRecordEventName | undefined) => {
     const event = getMockedNewEvent(eventName);
 
     await handler(event);
 
-    expect(helperMocked.callPushHandler).not.toHaveBeenCalled();
+    expect(publishMessageMock).not.toHaveBeenCalled();
   });
 
   it('Should publish to sns topic', async () => {
-    getActiveSubscriptionsMock.mockImplementationOnce(async () => [ activeSubscriptionsMock ]);
-    helperMocked.callPushHandler.mockImplementation(async () => publishCommandOutputMock)
+    getActiveSubscriptionsMock.mockResolvedValue([ activeSubscriptionsMock ])
+    publishMessageMock.mockResolvedValue(publishCommandOutputMock)
 
     const event = getMockedNewEvent(DynamoDBRecordEventName.INSERT)
 
     await handler(event);
 
-    expect(helperMocked.callPushHandler).toHaveBeenCalledWith(
+    expect(publishMessageMock).toHaveBeenCalledWith(
       {
         body: 'homeTeam mock score mock awayTeam mock',
         title: 'Goal'

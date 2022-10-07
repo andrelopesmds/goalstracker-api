@@ -1,9 +1,10 @@
-import { getTeams } from '../repository/teams';
+import { TeamsRepository } from '../repository/teams';
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { ORIGIN } from '../constants';
 
 export const handler = async (): Promise<APIGatewayProxyResult> => {
-  const teams = await getTeams();
+  const teamsRepository = new TeamsRepository()
+  const teams = await teamsRepository.getTeams()
 
   const body = JSON.stringify({
     teams,

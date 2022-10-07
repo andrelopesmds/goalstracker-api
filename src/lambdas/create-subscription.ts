@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { createSubscription } from '../repository/subscriptions';
+import { SubscriptionsRepository } from '../repository/subscriptions';
 import { ORIGIN } from '../constants';
 import { Subscription } from '../interfaces/subscription.interface';
 
@@ -17,7 +17,8 @@ export const handler = async (event: { body: string; }): Promise<APIGatewayProxy
 
   subscription.teamsIds = teamsIds.toString();
 
-  await createSubscription(subscription);
+  const subscriptionsRepository = new SubscriptionsRepository()
+  await subscriptionsRepository.createSubscription(subscription);
 
   return {
     statusCode: 200,

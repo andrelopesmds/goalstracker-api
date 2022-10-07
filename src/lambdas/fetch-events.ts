@@ -1,5 +1,5 @@
-import { getEvents, saveEventsList } from '../repository/events';
-import { getTeams } from '../repository/teams';
+import { EventsRepository } from '../repository/events';
+import { TeamsRepository } from '../repository/teams';
 import { Team } from '../interfaces/team.interface';
 import { Event } from '../interfaces/event.interface';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,21 +8,23 @@ import { getLiveEvents } from '../get-live-events';
 const MINUTESTOTRACK = 60 * 24;
 
 export const handler = async (): Promise<void> => {
-  const teams = await getTeams();
+  const teamsRepository = new TeamsRepository()
+  const teams = await teamsRepository.getTeams();
 
   const allMatches = await runApi();
 
   const filteredMatches = filterMatchesOfSupportedTeams(allMatches, teams);
   console.log(`Filtered matches: ${JSON.stringify(filteredMatches)}`);
 
+  const eventsRepository = new EventsRepository()
   if (filteredMatches.length > 0) {
-    const recentlySavedEvents = await getEvents(MINUTESTOTRACK);
+    const recentlySavedEvents = await eventsRepository.getEvents(MINUTESTOTRACK);
 
     const notSavedEvents = filterNotSavedEvents(filteredMatches, recentlySavedEvents);
 
     if (notSavedEvents && notSavedEvents.length > 0) {
       console.log(`Events list will be saved: ${JSON.stringify(notSavedEvents)}`);
-      await saveEventsList(notSavedEvents);
+      await eventsRepository.saveEventsList(notSavedEvents);
     }
   }
 

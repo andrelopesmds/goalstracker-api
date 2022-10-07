@@ -2,7 +2,7 @@ import { mocked } from 'jest-mock';
 
 import { handler } from '../../src/lambdas/get-teams';
 import { Team } from '../../src/interfaces/team.interface';
-import { getTeams } from '../../src/repository/teams';
+import { TeamsRepository } from '../../src/repository/teams';
 
 const teamsMock: Team[] = [
   {
@@ -20,12 +20,13 @@ const teamsMock: Team[] = [
 ];
 
 jest.mock('../../src/repository/teams');
-const getTeamsMock = mocked(getTeams, true);
+const getTeamsMock = mocked(TeamsRepository.prototype.getTeams);
 
 describe('Get teams lambda', () => {
 
   it('Should get all teams', async () => {
-    getTeamsMock.mockImplementationOnce(async () => teamsMock);
+    getTeamsMock.mockResolvedValue(teamsMock)
+
     const expectedBody = JSON.stringify({ teams: teamsMock });
 
     const { statusCode, body } = await handler();
@@ -35,7 +36,8 @@ describe('Get teams lambda', () => {
   });
 
   it('Should return an empty array if there is no teams available', async () => {
-    getTeamsMock.mockImplementationOnce(async () => []);
+    getTeamsMock.mockResolvedValue([])
+
     const expectedBody = JSON.stringify({ teams: [] });
 
     const { statusCode, body } = await handler();

@@ -1,7 +1,7 @@
-import { getActiveSubscriptions } from '../repository/subscriptions';
-import { callPushHandler } from '../helper';
+import { SubscriptionsRepository } from '../repository/subscriptions';
 import { Subscription } from '../interfaces/subscription.interface';
 import { PushNotification } from '../interfaces/push-notification.interface';
+import { NotificationsRepository } from '../repository/notifications';
 
 export const handler = async (event: any): Promise<void> => {
   if (event.Records[0].eventName !== 'INSERT') {
@@ -17,7 +17,8 @@ export const handler = async (event: any): Promise<void> => {
   console.log(`TeamsIds: ${JSON.stringify(teamsIds)}`);
   console.log(`Notification that will be sent: ${JSON.stringify(pushNotification)}`);
 
-  const subscriptions = await getActiveSubscriptions();
+  const subscriptionsRepository = new SubscriptionsRepository()
+  const subscriptions = await subscriptionsRepository.getActiveSubscriptions();
 
   const filteredSubscriptions = filterSubscriptionsByTeamsIds(subscriptions, teamsIds);
 
@@ -27,8 +28,9 @@ export const handler = async (event: any): Promise<void> => {
 };
 
 const sendMessages = async (pushNotification: PushNotification, filteredSubscriptions: Subscription[]) => {
+  const notificationsRepository = new NotificationsRepository()
   return await Promise.all(
-    filteredSubscriptions.map(async (subscription) => callPushHandler(pushNotification, subscription))
+    filteredSubscriptions.map(async (subscription) => notificationsRepository.publishMessage(pushNotification, subscription))
   );
 };
 

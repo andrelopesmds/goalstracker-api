@@ -1,18 +1,18 @@
 import { handler } from '../../src/lambdas/fetch-events'
-import * as eventsRepo from '../../src/repository/events'
+import { EventsRepository } from '../../src/repository/events'
 import axios from 'axios'
 import { SportsLiveScoresMatch } from '../../src/interfaces/sports-live-score-match.interface'
-import { getTeams } from '../../src/repository/teams'
+import { TeamsRepository } from '../../src/repository/teams'
 import { Team } from '../../src/interfaces/team.interface'
 
 jest.mock('../../src/repository/teams')
-const getTeamsMock = jest.mocked(getTeams, true)
+const getTeamsMock = jest.mocked(TeamsRepository.prototype.getTeams)
 
 jest.mock('axios')
-const axiosRequestMock = jest.mocked(axios.request, true)
+const axiosRequestMock = jest.mocked(axios.request)
 
 jest.mock('../../src/repository/events')
-const eventsRepositoryMock = jest.mocked(eventsRepo, true)
+const eventsRepositoryMock = jest.mocked(EventsRepository)
 
 
 const eventsMock: SportsLiveScoresMatch[] = [
@@ -41,8 +41,8 @@ describe('Fetch lambda', () => {
 
     getTeamsMock.mockResolvedValue(teamsMock)
 
-    eventsRepositoryMock.getEvents.mockResolvedValue([])
-    eventsRepositoryMock.saveEventsList.mockResolvedValue()
+    eventsRepositoryMock.prototype.getEvents.mockResolvedValue([])
+    eventsRepositoryMock.prototype.saveEventsList.mockResolvedValue(undefined)
 
     axiosRequestMock.mockResolvedValue({ status: 200, data: { matches: eventsMock }})
   });
@@ -56,9 +56,9 @@ describe('Fetch lambda', () => {
   it('should save the events list correctly', async () => {
     await handler();
 
-    expect(eventsRepositoryMock.saveEventsList).toHaveBeenCalledWith(Array(1).fill(expect.anything()));
+    expect(eventsRepositoryMock.prototype.saveEventsList).toHaveBeenCalledWith(Array(1).fill(expect.anything()));
 
-    expect(eventsRepositoryMock.saveEventsList).toHaveBeenCalledWith(
+    expect(eventsRepositoryMock.prototype.saveEventsList).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({
           'homeTeam': 'home-team-test',
@@ -70,7 +70,7 @@ describe('Fetch lambda', () => {
   });
 
   it('should not save if event already exists in DB', async () => {
-    eventsRepositoryMock.getEvents.mockResolvedValue([{
+    eventsRepositoryMock.prototype.getEvents.mockResolvedValue([{
       id: '123456',
       homeTeam: eventsMock[0]['Home Team'],
       awayTeam: eventsMock[0]['Away Team'],
@@ -79,6 +79,6 @@ describe('Fetch lambda', () => {
 
     await handler()
 
-    expect(eventsRepositoryMock.saveEventsList).not.toBeCalled()
+    expect(eventsRepositoryMock.prototype.saveEventsList).not.toBeCalled()
   })
 });

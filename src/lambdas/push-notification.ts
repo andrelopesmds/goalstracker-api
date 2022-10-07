@@ -1,5 +1,5 @@
 import * as webpush from 'web-push';
-import { removeSubscription } from '../repository/subscriptions';
+import { SubscriptionsRepository } from '../repository/subscriptions';
 import { WEB_PUSH_PRIVATE_KEY, WEB_PUSH_PUBLIC_KEY} from '../constants';
 import { SnsMessage } from '../interfaces/sns-message.interface';
 
@@ -24,7 +24,8 @@ export const handler = async (event: any) => {
     console.log(`Error when sending the message: ${JSON.stringify(error)}`);
 
     if (error && (error as { statusCode: number }).statusCode === 410) {
-      await removeSubscription(subscription.endpoint);
+      const subscriptionsRepository = new SubscriptionsRepository()
+      await subscriptionsRepository.removeSubscription(subscription.endpoint);
       console.log('User unsubscribed!');
     } else {
       throw error;
