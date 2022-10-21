@@ -2,7 +2,12 @@ name: Smoke test
 
 on:
   workflow_dispatch:
-
+    inputs:
+      environment:
+        type: environment
+        description: Environment
+        required: true
+        default: dev
 
 jobs:
   smoke-tests:
@@ -19,5 +24,7 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
 
-      - name: Run smoke tests
+      - name: Run Smoke tests against ${{ github.event.inputs.environment }}
         run: yarn smoke-tests
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
