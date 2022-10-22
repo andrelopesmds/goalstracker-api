@@ -24,4 +24,10 @@ export class TeamsRepository extends DynamoDB {
     console.log(`Teams loaded: ${JSON.stringify(teams)}`);
     return teams ?? []
   }
+
+  async getAllTeamsIds(): Promise<string[]> {
+    const allTeams = await this.getTeams()
+
+    return allTeams.map(team => team.id)
+  }
 }

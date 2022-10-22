@@ -3,3 +3,5 @@ node_modules
 cdk.out
 
 template.yml
+
+smoke-test/index.js

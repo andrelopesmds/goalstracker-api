@@ -45,10 +45,7 @@ export class SubscriptionsRepository extends DynamoDB {
   async createSubscription (subscription: Subscription): Promise<void> {
     const putCommand = new PutCommand({
       TableName: this.tableName,
-      Item: {
-        ...subscription,
-        subscribeDate: new Date().toISOString()
-      }
+      Item: subscription
     })
 
     const response = await this.dynamoDBDocumentClient.send(putCommand)

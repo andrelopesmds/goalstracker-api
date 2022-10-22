@@ -1,57 +1,45 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { SubscriptionsRepository } from '../repository/subscriptions';
-import { ORIGIN } from '../constants';
-import { Subscription } from '../interfaces/subscription.interface';
+import { getSuccessfulResponse, getBadRequestResponse } from '../helper';
+import { validateSubscriptionEventBody } from '../event-validation';
+import { TeamsRepository } from '../repository/teams'
 
-interface SubscriptionEventBody {
-  subscription: Subscription,
-  teamsIds: string[]
-}
 
 export const handler = async (event: { body: string; }): Promise<APIGatewayProxyResult> => {
-  const body: SubscriptionEventBody = JSON.parse(event.body);
+  console.log('Body: ', event.body)
 
-  const { subscription, teamsIds } = body;
-  
-  validateInput(subscription, teamsIds);
+  const { parsedBody, isBodyValid } = validateSubscriptionEventBody(event.body)
 
-  subscription.teamsIds = teamsIds.toString();
+  if(!isBodyValid) {
+    return getBadRequestResponse('Invalid body')
+  }
+ 
+  const { subscription, teamsIds } = parsedBody
+
+  if(!subscription.endpoint.includes('https')) {
+    return getBadRequestResponse('Endpoint must use https')
+  }
+
+  const teamsRepository = new TeamsRepository()
+  const allTeamsIds = await teamsRepository.getAllTeamsIds()
+
+  if(!teamsIdsAreValid(allTeamsIds, teamsIds)) {
+    return getBadRequestResponse('TeamsIds is not valid')
+  }
 
   const subscriptionsRepository = new SubscriptionsRepository()
-  await subscriptionsRepository.createSubscription(subscription);
+  await subscriptionsRepository.createSubscription({
+    ...subscription,
+    teamsIds: teamsIds.toString(), // TODO - save it as array
+    subscribeDate: new Date().toISOString()
+  });
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': ORIGIN,
-    },
-    body: JSON.stringify({
-      message: 'User subscribed!',
-    })
-  };
+  // TODO - return 201
+  return getSuccessfulResponse(JSON.stringify({
+    message: 'User subscribed!',
+  }))
 };
 
-const validateInput = (subscription: Subscription, teamsIds: string[]): void => {
-  // todo - do type checking
-  if (!isSubscriptionValid(subscription)) {
-    throw new Error('Subscription is not valid');
-  }
-
-  if (!teamsIds || !(teamsIds.length > 0)) { // todo - get available ids from db and compare
-    throw new Error('TeamsIds is not valid');
-  }
-};
-
-const isSubscriptionValid = (subscription: Subscription) => {
-  if (!hasProperties(subscription, ['endpoint', 'keys']) || !hasProperties(subscription.keys, ['p256dh', 'auth'])) {
-    return false;
-  }
-
-  if (!subscription.endpoint.includes('https')) {
-    return false;
-  }
-
-  return true;
-};
-
-const hasProperties = (obj: any, propertiesList: string[]) => propertiesList.every((property) => Object.prototype.hasOwnProperty.call(obj, property));
+function teamsIdsAreValid(allTeamsIds: string[], teamsIds: string[]): boolean {
+  return teamsIds.every(teamId => allTeamsIds.includes(teamId))
+}

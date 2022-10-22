@@ -1,6 +1,6 @@
 import { TeamsRepository } from '../repository/teams';
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { ORIGIN } from '../constants';
+import { getSuccessfulResponse } from '../helper';
 
 export const handler = async (): Promise<APIGatewayProxyResult> => {
   const teamsRepository = new TeamsRepository()
@@ -10,11 +10,5 @@ export const handler = async (): Promise<APIGatewayProxyResult> => {
     teams,
   });
 
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': ORIGIN,
-    },
-    body
-  };
+  return getSuccessfulResponse(body)
 };
