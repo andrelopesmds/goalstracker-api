@@ -55,8 +55,8 @@ async function assertPostSubscription(apiUrl: string, websiteUrl: string, teamId
   console.log('headers', headers)
   console.log('body', body)
 
-  if(statusCode !== 200) {
-    throw new Error(`Post subscription failed with non 200 status code: ${ statusCode }`)
+  if(statusCode < 200 || statusCode > 299) {
+    throw new Error(`Post subscription failed with non 2XX status code: ${ statusCode }`)
   }
 
   if(headers['content-type'] !== 'application/json') {
