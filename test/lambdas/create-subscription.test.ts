@@ -45,7 +45,7 @@ describe('Create subscription successfully', () => {
   })
 
   it('Should return 200 status code', () => {
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(201)
   })
 
   it('Should return a \'User Subscribed\' message', () => {
@@ -76,7 +76,7 @@ describe('Create subscription successfully', () => {
 
     const { statusCode } = await handler(event);
 
-    expect(statusCode).toBe(200)
+    expect(statusCode).toBe(201)
   })
 })
 

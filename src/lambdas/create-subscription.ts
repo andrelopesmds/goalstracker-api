@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { SubscriptionsRepository } from '../repository/subscriptions';
-import { getSuccessfulResponse, getBadRequestResponse } from '../helper';
+import { getBadRequestResponse, getCreatedResponse } from '../helper';
 import { validateSubscriptionEventBody } from '../event-validation';
 import { TeamsRepository } from '../repository/teams'
 
@@ -34,8 +34,7 @@ export const handler = async (event: { body: string; }): Promise<APIGatewayProxy
     subscribeDate: new Date().toISOString()
   });
 
-  // TODO - return 201
-  return getSuccessfulResponse(JSON.stringify({
+  return getCreatedResponse(JSON.stringify({
     message: 'User subscribed!',
   }))
 };

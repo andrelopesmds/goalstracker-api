@@ -15,6 +15,10 @@ export const getSuccessfulResponse = (body: string) => {
   return getResponse(200, body)
 }
 
+export const getCreatedResponse = (body: string) => {
+  return getResponse(201, body)
+}
+
 export const getBadRequestResponse = (body: string) => {
   return getResponse(400, body)
 }
