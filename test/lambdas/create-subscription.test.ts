@@ -44,7 +44,7 @@ describe('Create subscription successfully', () => {
     jest.clearAllMocks()
   })
 
-  it.only('Should return 200 status code', () => {
+  it('Should return 200 status code', () => {
     expect(response.statusCode).toBe(200)
   })
 
@@ -67,7 +67,10 @@ describe('Create subscription successfully', () => {
     const event = {
       body: JSON.stringify({
         ...validBody,
-        expirationTime: null
+        subscription: {
+          ...validBody.subscription,
+          expirationTime: null
+        }
       })
     }
 

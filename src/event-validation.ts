@@ -24,7 +24,7 @@ const subscriptionEventBodySchema = {
           type: 'string'
         },
         expirationTime: {
-          type: 'string'
+          type: ['string', 'null']
         },
         keys: {
           type: 'object',
