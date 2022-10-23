@@ -62,6 +62,19 @@ describe('Create subscription successfully', () => {
 
     expect(createSubscriptionMock).toHaveBeenCalledWith(expect.objectContaining(expectedDBItem))
   })
+
+  it('Should return success in case non necessary \'expirationTime\' attribute is passed', async () => {
+    const event = {
+      body: JSON.stringify({
+        ...validBody,
+        expirationTime: null
+      })
+    }
+
+    const { statusCode } = await handler(event);
+
+    expect(statusCode).toBe(200)
+  })
 })
 
 describe('Create subscriptions error cases', () => {

@@ -109,6 +109,7 @@ export class GoalstrackerApiStack extends Stack {
     // todo - why is not 'describeTable added when using 'grantReadAccess'?
     teamsTable.grantFullAccess(getTeams);
     teamsTable.grantFullAccess(fetchEvents);
+    teamsTable.grantReadData(createSubscription)
     subscriptionsTable.grantFullAccess(dispatchEvents);
     subscriptionsTable.grantFullAccess(createSubscription);
     subscriptionsTable.grantFullAccess(pushNotification);
@@ -167,6 +168,7 @@ export class GoalstrackerApiStack extends Stack {
       handler: 'handler',
       environment: {
         SUBSCRIPTIONS_TABLE: tableNames.subscriptionsTable,
+        TEAMS_TABLE: tableNames.teamsTable,
         ORIGIN: origin
       },
     });
