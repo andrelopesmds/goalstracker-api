@@ -36,12 +36,10 @@ const subscriptionEventBodySchema = {
               type: 'string'
             }
           },
-          required: ['p256dh', 'auth'],
-          additionalProperties: false
+          required: ['p256dh', 'auth']
         }
       },
-      required: ['endpoint', 'keys'],
-      additionalProperties: false
+      required: ['endpoint', 'keys']
     },
     teamsIds: {
       type: 'array',
@@ -52,8 +50,7 @@ const subscriptionEventBodySchema = {
       uniqueItems: true
     }
   },
-  required: ['subscription', 'teamsIds'],
-  additionalProperties: false
+  required: ['subscription', 'teamsIds']
 }
 
 export function validateSubscriptionEventBody(body: string): { isBodyValid: boolean, parsedBody: SubscriptionEventBody } {
