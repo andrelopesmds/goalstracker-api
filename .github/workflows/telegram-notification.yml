@@ -1,0 +1,13 @@
+name: Telegram notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-workflow-passing-data:
+    uses: andrelopesmds/reusable-workflows/.github/workflows/telegram-notification.yml@main
+    with:
+      message: 'goalstracker-api merged to main'
+    secrets: inherit
