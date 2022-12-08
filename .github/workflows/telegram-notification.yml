@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  call-workflow-passing-data:
+  send-telegram-notification:
     uses: andrelopesmds/reusable-workflows/.github/workflows/telegram-notification.yml@main
     with:
       message: 'goalstracker-api merged to main'
